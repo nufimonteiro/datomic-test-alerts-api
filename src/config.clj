@@ -9,5 +9,5 @@
 (def datomic-arg-map {:server-type :ion
                       :region region
                       :system system
-                      :endpoint "https://nvqvp7b27k.execute-api.us-east-1.amazonaws.com" ;ClientApiGatewayEndpoint
+                      :endpoint "https://aoqp5jrsxe.execute-api.us-east-1.amazonaws.com" ;ClientApiGatewayEndpoint
                       :creds-profile "bubbagumpshrimp"})
