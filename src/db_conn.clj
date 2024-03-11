@@ -5,7 +5,7 @@
     [utils.general :as utils]
     [config :refer [datomic-arg-map]]))
 
-(def db-name (or (:db-name (ion/get-env)) "automated-metrics"))
+(def db-name (or (:db-name (ion/get-env)) "datomic-test-alerts"))
 
 (def client (memoize #(d/client datomic-arg-map)))
 

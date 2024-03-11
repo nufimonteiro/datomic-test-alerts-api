@@ -1,7 +1,7 @@
 (ns config)
 
 (def region "us-east-1")
-(def system "datomic-metrics")
+(def system "datomic-test-alerts")
 
 (def dev-arg-map {:system system
                   :server-type :dev-local})
