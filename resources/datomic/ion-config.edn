@@ -1,0 +1,5 @@
+{:allow [handler/app]
+
+ :http-direct {:handler-fn handler/app}
+
+ :app-name "datomic-test-alerts"}
