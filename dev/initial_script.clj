@@ -6,7 +6,7 @@
             [pandect.algo.sha256 :as p])
   (:use clojure.pprint))
 
-(def db-name "automated-metrics")
+(def db-name "datomic-test-alerts")
 
 
 ;;config at src/config.clj
@@ -48,6 +48,15 @@
 (d/transact conn {:tx-data user-schema})
 (d/transact conn {:tx-data token-schema})
 
+
+(d/transact conn {:tx-data [{:token/application "test-alerts"
+                             :token/value       "DatomicTestAlerts!!"}]})
+(ffirst (d/q '[:find ?application
+        :in $ ?app-name
+        :where [?app :token/application ?app-name]
+        [?app :token/value ?application]] db "test-alerts"))
+
+(utils.general/token-is-valid? "DatomicTestAlerts!!" db "test-alerts")
 (p/sha256 "Datomic@9513Metrics!!")
 
 (d/transact conn {:tx-data [{:user/name     "Admin"

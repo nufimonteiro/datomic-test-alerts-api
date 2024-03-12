@@ -1,17 +1,19 @@
 (ns routes.alerts
   (:require
-    [middleware.inject-datomic :refer [inject-datomic-mw]]))
+    [middleware.inject-datomic :refer [inject-datomic-mw]]
+    [clojure.data.json :as json]
+    [utils.general :as utils]))
 
 (defn get-datomic-version
-  [{:keys [datomic query-params]}]
+  [{:keys [datomic query-params form-params]}]
   (let [db (:db datomic)
-        period (get query-params "period")
-        date (get query-params "date")
-        token (queries/get-token-app "matomo" db)]
-    ;code here
+        log (json/read-str (get query-params "log") :key-fn keyword)
+        log-map (utils/log-string-to-map log)
+        version (:version log-map)]
+
     {:status 200
-     :body   "It's ok. :)"}))
+     :body   (str "version-datomic -> " version)}))
 
 (def routes
-  (vec {"/all-matomo-metrics"             {:middleware [inject-datomic-mw]
-                                           :get        get-datomic-version}}))
+  (vec {"/datomic-version-system-automator" {:middleware [inject-datomic-mw]
+                                             :post        get-datomic-version}}))

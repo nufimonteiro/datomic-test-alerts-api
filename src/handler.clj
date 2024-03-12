@@ -7,12 +7,12 @@
     [middleware.inject-datomic :refer [inject-datomic-mw]]
     [middleware.cors :refer [cors-mw options-mw]]
     [middleware.auth :as auth-mw]
-    [routes.metrics :as metrics]))
+    [routes.alerts :as alerts]))
 
 (def app
   (ring/ring-handler
    (ring/router
-    ["/api/v1" [metrics/routes]]
+    ["/api/v1" [alerts/routes]]
     {:data {:muuntaja   m/instance
             :middleware [inject-datomic-mw
                          options-mw

@@ -11,7 +11,7 @@
                     (do
                       (let [token (get (:headers request) "authorization")
                             db (get-in request [:datomic :db])]
-                        (if (or (true? (utils/token-is-valid? token db)) (= routes "/api/v1/login"))
+                        (if (or (true? (utils/token-is-valid? token db "test-alerts")) (= routes "/api/v1/login"))
                           (handler request)
                           {:status 401 :body "Unauthorized. Token is incorrect."})))
                     {:status 401 :body "Unauthorized. You need to send Authorization in the header."}))))})
