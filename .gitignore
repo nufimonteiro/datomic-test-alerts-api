@@ -4,3 +4,4 @@ datomic-test-alerts-api.iml
 .nrepl-port/
 .datomic-ions/
 .nrepl-port
+*.zip
