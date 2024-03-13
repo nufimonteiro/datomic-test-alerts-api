@@ -41,3 +41,13 @@
 
 (defn log-string-to-map [log]
   (read-string (re-find #"\{.*\}" log)))
+
+(defn format-alert
+  [time log-group log-name version message]
+  (format "*An alert in the tests*:
+  *_Time of the occurence_*: %s
+  *_LogGroup_*: %s
+  *_Logname_*: %s
+  *_Datomic Version_*: %s
+  *_Message from log_*: ```%s```"
+          time log-group log-name version message))
