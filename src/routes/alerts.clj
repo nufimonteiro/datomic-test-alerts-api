@@ -18,10 +18,12 @@
         message (get query-params "message")
         channel (get query-params "channel")
         authorization (get query-params "authorization")]
+    (println "query-params -> " query-params)
     (client/post vars/url-post-slack
                  {:form-params {:channel channel,
                                 :text    (utils/format-alert time log-group log-name version message)}
                   :headers     {"Authorization" (format "Bearer %s" authorization)}})
+    (println "-> " time log-group log-name version message)
     {:status 200
      :body   (str "Alert sent to channel: " channel)}))
 
