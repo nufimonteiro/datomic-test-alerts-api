@@ -1,4 +1,6 @@
 datomic-test-alerts-api.iml
 .cpcache/
 .idea/
+.nrepl-port/
+.datomic-ions/
 .nrepl-port
