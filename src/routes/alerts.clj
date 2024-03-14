@@ -23,7 +23,9 @@
                  {:form-params {:channel channel,
                                 :text    (utils/format-alert time log-group log-name version message)}
                   :headers     {"Authorization" (format "Bearer %s" authorization)}})
-    (println "-> " time log-group log-name version message)
+    ;(println "version -> " version)
+    ;(println "type version -> " (type version))
+    ;(println "-> " time log-group log-name version message)
     {:status 200
      :body   (str "Alert sent to channel: " channel)}))
 

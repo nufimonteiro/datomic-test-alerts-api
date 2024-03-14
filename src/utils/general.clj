@@ -45,7 +45,7 @@
 (defn format-alert
   [time log-group log-name version message]
   (if (not= nil version)
-   (format "*An alert in the tests*:
+    (format "*An alert in the tests*:
   *_Time of the occurence_*: %s
   *_LogGroup_*: %s
   *_Logname_*: %s
