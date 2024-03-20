@@ -17,65 +17,99 @@ var newLogStream = getLogStream.replace(/\//g, "$252F");
 var urlGetLogGroup = "<https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/"+getLogGroup+"|"+getLogGroup+">";
 var urlLogStream = "<https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/system-automator/log-events/"+newLogStream+"|"+getLogStream+">";
 var logDatomicVersion;
-
+var foundVersion = false;
 async function run() {
-  var cloudwatchlogs = new AWS.CloudWatchLogs({region: 'us-east-1'});
-
-  var params = {
-    logGroupName: 'monteiro-tests',
-    logStreamNamePrefix: 'tests',
-    limit: 1
-};
-
-cloudwatchlogs.describeLogStreams(params, function(err, data) {
-    if (err) {
-        console.log(err, err.stack);
-    } else {
+    return new Promise((resolve, reject) => {
+        var cloudwatchlogs = new AWS.CloudWatchLogs({region: 'us-east-1'});
         var params = {
             logGroupName: 'monteiro-tests',
-            logStreamName: data.logStreams[0].logStreamName,
-            limit: 100
+            logStreamNamePrefix: getLogStream,
+            limit: 1
         };
 
-        cloudwatchlogs.getLogEvents(params, function(err, data) {
+        cloudwatchlogs.describeLogStreams(params, function(err, data) {
             if (err) {
                 console.log(err, err.stack);
+                reject(err);
             } else {
-                for(var i = 0; i < data.events.length; i++) {
-                    if(data.events[i].message.indexOf("version") > -1) {
-                            var mensagem = JSON.stringify(data.events[i]);
-                            var objetoJson = JSON.parse(mensagem);
-                            var valorMessage = objetoJson.message;
-                            console.log("Apenas o log = " + valorMessage);
-                            const valorMessageComAspasEscapadas = valorMessage.replace(/"/g, '\\"');
-                            const logStreamScaped = urlLogStream.replace(/["#]/g, (match) => {
-                                return match === '"' ? '\\"' : '%23';
-                              });
-                            const logGroupScaped = urlGetLogGroup.replace(/["#]/g, (match) => {
-                                return match === '"' ? '\\"' : '%23';
-                              });
-                            const messageScaped = getMessage.replace(/"/g, '\\"');
-                            const urlSystemAutomator = `https://ac7dhepzzc.execute-api.us-east-1.amazonaws.com/api/v1/alerts-system-automator?log="${valorMessageComAspasEscapadas}"&time=${timestampNow}&loggroup=${logGroupScaped}&logname=${logStreamScaped}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
+                var params = {
+                    logGroupName: 'monteiro-tests',
+                    logStreamName: data.logStreams[0].logStreamName,
+                    limit: 100
+                };
 
-                            axios.post(urlSystemAutomator, null, {
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': 'DatomicTestAlerts!!'
-                                }
-                            })
-                                .then(response => {
-                                    console.log('API return -> ' + response.data);
+                cloudwatchlogs.getLogEvents(params, function(err, data) {
+                    if (err) {
+                        console.log(err, err.stack);
+                        reject(err);
+                    } else {
+                        let foundVersion = false;
+
+                        for(var i = 0; i < data.events.length; i++) {
+                            if(data.events[i].message.indexOf("version") > -1) {
+                                var mensagem = JSON.stringify(data.events[i]);
+                                var objetoJson = JSON.parse(mensagem);
+                                var valorMessage = objetoJson.message;
+                                const valorMessageComAspasEscapadas = valorMessage.replace(/"/g, '\\"');
+                                const logStreamScaped = urlLogStream.replace(/["#]/g, (match) => {
+                                    return match === '"' ? '\\"' : '%23';
+                                  });
+                                const logGroupScaped = urlGetLogGroup.replace(/["#]/g, (match) => {
+                                    return match === '"' ? '\\"' : '%23';
+                                  });
+                                const messageScaped = getMessage.replace(/"/g, '\\"');
+                                const urlSystemAutomator = `https://ac7dhepzzc.execute-api.us-east-1.amazonaws.com/api/v1/alerts-system-automator?log="${valorMessageComAspasEscapadas}"&time=${timestampNow}&loggroup=${logGroupScaped}&logname=${logStreamScaped}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
+
+                                axios.post(urlSystemAutomator, null, {
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'DatomicTestAlerts!!'
+                                    }
                                 })
-                                .catch(error => {
-                                    console.error('Error:', error.message);
-                                });
+                                    .then(response => {
+                                        console.log('API return -> ' + response.data);
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error.message);
+                                    });
+
+                                foundVersion = true;
+                                break;
                             }
-                }
+                        }
+
+                        resolve(foundVersion);
+                    }
+                });
             }
         });
-    }
-});
+    });
 }
-        run();
+run().then(foundVersion => {
+    if (!foundVersion) {
+                                const logStreamScaped = urlLogStream.replace(/["#]/g, (match) => {
+                                    return match === '"' ? '\\"' : '%23';
+                                  });
+                                const logGroupScaped = urlGetLogGroup.replace(/["#]/g, (match) => {
+                                    return match === '"' ? '\\"' : '%23';
+                                  });
+                                const urlSystemAutomator = `https://ac7dhepzzc.execute-api.us-east-1.amazonaws.com/api/v1/alerts-system-automator?log="{:nothing 123}"&time=${timestampNow}&loggroup=${logGroupScaped}&logname=${logStreamScaped}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
+
+                                axios.post(urlSystemAutomator, null, {
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'DatomicTestAlerts!!'
+                                    }
+                                })
+                                    .then(response => {
+                                        console.log('API return -> ' + response.data);
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error.message);
+                                    });
+    }
+}).catch(err => {
+    console.error('Erro:', err);
+});
     });
 };
