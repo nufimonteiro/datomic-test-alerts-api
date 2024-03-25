@@ -80,7 +80,7 @@ async function run() {
                                 const valorMessageComAspasEscapadas = valorMessage.replace(/"/g, '\\"');
 
                                 const messageScaped = getMessage.replace(/"/g, '\\"');
-                                const urlSystemAutomator = `https://5419-2804-1b3-a000-37e5-f50d-e2de-672d-fd7f.ngrok-free.app/api/v1/alerts-system-automator?log="${valorMessageComAspasEscapadas}"&time=${timestampNow}&loggroup=${getLogGroup}&logname=${getLogStream}&timestampstart=${timeStampStart}&timestampend=${timeStampEnd}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
+                                const urlSystemAutomator = `https://ac7dhepzzc.execute-api.us-east-1.amazonaws.com/api/v1/alerts-system-automator?log="${valorMessageComAspasEscapadas}"&time=${timestampNow}&loggroup=${getLogGroup}&logname=${getLogStream}&timestampstart=${timeStampStart}&timestampend=${timeStampEnd}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
                                 axios.post(urlSystemAutomator, null, {
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ async function run() {
 }
 run().then(foundVersion => {
     if (!foundVersion) {
-        const urlSystemAutomator = `https://5419-2804-1b3-a000-37e5-f50d-e2de-672d-fd7f.ngrok-free.app/api/v1/alerts-system-automator?log="{:nothing 123}"&time=${timestampNow}&loggroup=${getLogGroup}&logname=${getLogStream}&timestampstart=${timeStampStart}&timestampend=${timeStampEnd}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
+        const urlSystemAutomator = `https://ac7dhepzzc.execute-api.us-east-1.amazonaws.com/api/v1/alerts-system-automator?log="{:nothing 123}"&time=${timestampNow}&loggroup=${getLogGroup}&logname=${getLogStream}&timestampstart=${timeStampStart}&timestampend=${timeStampEnd}&message=${getMessage}&channel=${process.env.Channel_Id_Slack}&authorization=${slackToken}`;
                                 axios.post(urlSystemAutomator, null, {
                                     headers: {
                                         'Content-Type': 'application/json',
