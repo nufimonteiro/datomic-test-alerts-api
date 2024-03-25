@@ -17,15 +17,13 @@
         time (get query-params "time")
         message (get query-params "message")
         channel (get query-params "channel")
+        timestamp-start (get query-params "timestampstart")
+        timestamp-end (get query-params "timestampend")
         authorization (get query-params "authorization")]
-    (println "query-params -> " query-params)
     (client/post vars/url-post-slack
                  {:form-params {:channel channel,
-                                :text    (utils/format-alert time log-group log-name version message)}
+                                :text    (utils/format-alert time log-group log-name version message timestamp-start timestamp-end)}
                   :headers     {"Authorization" (format "Bearer %s" authorization)}})
-    ;(println "version -> " version)
-    ;(println "type version -> " (type version))
-    ;(println "-> " time log-group log-name version message)
     {:status 200
      :body   (str "Alert sent to channel: " channel)}))
 

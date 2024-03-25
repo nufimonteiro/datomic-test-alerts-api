@@ -2,7 +2,8 @@
   (:require [clojure.data.json :as json]
             [clj-http.client :as client]
             [cognitect.anomalies :as anomalies]
-            [queries :as queries]))
+            [queries :as queries]
+            [resources.vars :as vars]))
 
 (def retryable-anomaly?
   "Set of retryable anomalies."
@@ -43,18 +44,19 @@
   (read-string (re-find #"\{.*\}" log)))
 
 (defn format-alert
-  [time log-group log-name version message]
-  (if (not= nil version)
-    (format "*An alert in the tests*:
+  [time log-group log-name version message timestamp-start timestamp-end]
+  (let [url-log-name (vars/url-link-log-stream log-group log-name timestamp-start timestamp-end)]
+    (if (not= nil version)
+     (format "*An alert in the tests*:
   *_Time of the occurence_*: %s
   *_LogGroup_*: %s
   *_Logname_*: %s
   *_Datomic Version_*: %s
   *_Message from log_*: ```%s```"
-           time log-group log-name version message)
-   (format "*An alert in the tests*:
+             time log-group url-log-name version message)
+     (format "*An alert in the tests*:
   *_Time of the occurence_*: %s
   *_LogGroup_*: %s
   *_Logname_*: %s
   *_Message from log_*: ```%s```"
-           time log-group log-name message)))
+             time log-group url-log-name message))))
