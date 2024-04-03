@@ -21,13 +21,16 @@
         timestamp-end (get query-params "timestampend")
         authorization (get query-params "authorization")]
     (println "Query-params from API: " query-params)
-    (client/post vars/url-post-slack
-                 {:form-params {:channel channel,
-                                ;:text    (utils/format-alert time log-group log-name version message timestamp-start timestamp-end)}
-                                :text    (utils/format-alert time log-group log-name version message timestamp-start timestamp-end query-params)}
-                  :headers     {"Authorization" (format "Bearer %s" authorization)}})
-    {:status 200
-     :body   (str "Alert sent to channel: " channel)}))
+    (try (client/post vars/url-post-slack
+                  {:form-params {:channel channel,
+                                 ;:text    (utils/format-alert time log-group log-name version message timestamp-start timestamp-end)}
+                                 :text    (utils/format-alert time log-group log-name version message timestamp-start timestamp-end query-params)}
+                   :headers     {"Authorization" (format "Bearer %s" authorization)}}
+                  {:status 200
+                   :body   (str "Alert sent to channel: " channel)})
+         (catch Exception e
+           {:status 500
+            :body   (str "Error in the API. Data from request -> " query-params)}))))
 
 (def routes
   (vec {"/alerts-system-automator" {:middleware [inject-datomic-mw]
