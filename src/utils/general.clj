@@ -48,18 +48,18 @@
   (let [url-log-name (vars/url-link-log-stream log-group log-name timestamp-start timestamp-end)
         url-log-group (vars/url-link-log-group log-group)]
     (if (not= nil version)
-      (format "*An alert in the tests*:
+      ("*An alert in the tests*:
   *_Time of the occurence_*: %s
   *_LogGroup_*: %s
   *_Logname_*: %s
   *_Datomic Version_*: %s
   *_Message from log_*: ```%s```
-  *Complete message: *  %s"
+  *Complete message: *  ```%s```" format
               time url-log-group url-log-name version message mensagem)
       (format "*An alert in the tests*:
   *_Time of the occurence_*: %s
   *_LogGroup_*: %s
   *_Logname_*: %s
   *_Message from log_*: ```%s```
-  *Complete message: * %s"
+  *Complete message: * ```%s```"
               time url-log-group url-log-name message mensagem))))
