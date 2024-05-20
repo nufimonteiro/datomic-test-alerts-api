@@ -43,6 +43,8 @@
 (defn log-string-to-map [log]
   (read-string (re-find #"\{.*\}" log)))
 
+;temp function
+;TODO decide what to do with this function. Do we will include version?
 (defn format-alert
   [time log-group log-name version message timestamp-start timestamp-end]
   (let [url-log-name (vars/url-link-log-stream log-group log-name timestamp-start timestamp-end)
@@ -61,3 +63,14 @@
   *_Logname_*: %s
   *_Message from log_*: ```%s```"
              time url-log-group url-log-name message))))
+
+(defn format-alert-message
+  [time log-group log-name message timestamp-start timestamp-end]
+  (let [url-log-name (vars/url-link-log-stream log-group log-name timestamp-start timestamp-end)
+        url-log-group (vars/url-link-log-group log-group)]
+      (format "*An alert in the tests*:
+  *_Time of the occurence_*: %s
+  *_LogGroup_*: %s
+  *_Logname_*: %s
+  *_Message from log_*: ```%s```"
+              time url-log-group url-log-name message)))
