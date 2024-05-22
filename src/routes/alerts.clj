@@ -30,6 +30,7 @@
 (defn datomic-test-alerts
   [{:keys [datomic query-params]}]
   (let [db (:db datomic)
+        conn (:conn datomic)
         log-group (get query-params "loggroup")
         log-name (get query-params "logname")
         time (get query-params "time")
@@ -40,7 +41,7 @@
         authorization (get query-params "authorization")]
     (client/post vars/url-post-slack
                  {:form-params {:channel channel,
-                                :text    (utils/format-alert-message time log-group log-name message timestamp-start timestamp-end)}
+                                :text    (utils/format-alert-message time log-group log-name message timestamp-start timestamp-end conn)}
                   :headers     {"Authorization" (format "Bearer %s" authorization)}})
     {:status 200
      :body   (str "Alert sent to channel: " channel)}))

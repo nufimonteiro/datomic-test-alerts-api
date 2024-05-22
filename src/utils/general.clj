@@ -3,7 +3,10 @@
             [clj-http.client :as client]
             [cognitect.anomalies :as anomalies]
             [queries :as queries]
-            [resources.vars :as vars]))
+            [resources.vars :as vars]
+            [clojure.instant :as inst]
+            [clojure.string :as str]
+            [datomic.client.api :as d]))
 
 (def retryable-anomaly?
   "Set of retryable anomalies."
@@ -64,13 +67,56 @@
   *_Message from log_*: ```%s```"
              time url-log-group url-log-name message))))
 
+(defn str-to-instant [timestamp-str]
+  (inst/read-instant-timestamp timestamp-str))
+
+(defn convert-month-to-number
+  [month]
+  (let [months vars/map-months
+        month-from-log (keyword month)]
+    (month-from-log months)))
+
+(defn format-timestamp-to-instant
+  [timestamp]
+  (let [timestamp-splited (str/split timestamp #" ")
+        month (convert-month-to-number (get timestamp-splited 1))
+        day (get timestamp-splited 2)
+        year (get timestamp-splited 3)
+        hour (get timestamp-splited 4)
+        instant (str year "-" month "-" day "T" hour)]
+    (str-to-instant instant)))
+
+(defn inserting-new-alert
+  [timestamp log-group log-name message conn]
+  (d/transact conn {:tx-data [{:alert/timestamp timestamp
+                               :alert/loggroup  log-group
+                               :alert/logname   log-name
+                               :alert/message   message}]}))
+
+(defn search-alert-by-timestamp
+  [timestamp db]
+  (first (d/q '[:find ?timestamp ?loggroup ?logname ?message
+          :in $ ?target-timestamp
+          :where
+          [?time :alert/timestamp ?timestamp]
+          [?time :alert/message ?message]
+          [?time :alert/loggroup ?loggroup]
+          [?time :alert/logname ?logname]
+          [?time :alert/message ?message]
+          [(= ?timestamp ?target-timestamp)]] db timestamp)))
+
+(defn alert-formated
+  [alert]
+  (zipmap [:timestamp :log-name :log-group :message] alert))
+
 (defn format-alert-message
-  [time log-group log-name message timestamp-start timestamp-end]
+  [time log-group log-name message timestamp-start timestamp-end conn]
   (let [url-log-name (vars/url-link-log-stream log-group log-name timestamp-start timestamp-end)
         url-log-group (vars/url-link-log-group log-group)]
-      (format "*An alert in the tests*:
+    (inserting-new-alert (format-timestamp-to-instant time) log-group log-name message conn)
+    (format "*An alert in the tests*:
   *_Time of the occurence_*: %s
   *_LogGroup_*: %s
   *_Logname_*: %s
   *_Message from log_*: ```%s```"
-              time url-log-group url-log-name message)))
+            time url-log-group url-log-name message)))
